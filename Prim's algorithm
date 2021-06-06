@@ -1,0 +1,98 @@
+#include <iostream>
+#include <vector>
+#include<limits>
+#include <iomanip>      // for setw()
+using namespace std;
+const int Max_Weight = INT_MAX;    // 初始化key[]時需要infinity, 以Max_Weight代替
+
+struct Edge {
+	int from, to;
+	Edge() {};
+	Edge(int u, int *v) :from(u), to(*v) {};
+};
+
+class GraphMST {
+private:
+	int num_vertex;
+	std::vector<std::vector<int>> AdjMatrix;
+	vector<struct Edge> edgesetMST;
+public:
+	GraphMST() :num_vertex(0) {};
+	GraphMST(int n) :num_vertex(n) {
+		AdjMatrix.resize(num_vertex);
+		for (int i = 0; i < num_vertex; i++) {
+			AdjMatrix[i].resize(num_vertex);
+		}
+	}
+	void AddEdge(int from, int to, int weight);
+
+	void PrintSortedGraph();
+	void PrimMST(int Start);        // 可以指定起點Start, 若沒有指定, 則從vertex(0)作為MST的root
+	friend int MinKeyExtract(int *key, bool *visited, int size);
+};
+
+int MinKeyExtract(int *key, bool *visited, int size) {
+
+	int min = Max_Weight, min_idx = 0;
+	for (int i = 0; i < size; i++) {
+		if (visited[i] == false && key[i] < min) {
+			min = key[i];
+			min_idx = i;
+		}
+	}
+	return min_idx;
+}
+
+void GraphMST::PrintSortedGraph() {
+	for (int i = 0; i < num_vertex - 2; i++) {
+		if (edgesetMST[i].from > edgesetMST[i].to) {
+			swap(edgesetMST[i].from, edgesetMST[i].to);
+		}
+		cout << edgesetMST[i].from << " " << edgesetMST[i].to << endl;
+	}
+}
+
+void GraphMST::PrimMST(int Start) {
+
+	int *key = new int[num_vertex];
+	int *predecessor = new int[num_vertex];
+	bool *visited = new bool[num_vertex];
+
+	for (int i = 0; i < num_vertex; i++) {
+		key[i] = Max_Weight;
+		predecessor[i] = -1;
+		visited[i] = false;     // false表示vertex還沒有被visited
+	}
+
+	key[Start] = 0;
+	for (int i = 0; i < num_vertex; i++) {
+		int u = MinKeyExtract(key, visited, num_vertex);
+		if (i != 0) {
+			edgesetMST.push_back(Edge(u, &predecessor[u]));
+		}
+		visited[u] = true;
+		for (int i = 0; i < num_vertex; i++) {
+			if (visited[i] == false && AdjMatrix[u][i] != 0 && AdjMatrix[u][i] < key[i]) {
+				predecessor[i] = u;
+				key[i] = AdjMatrix[u][i];
+			}
+		}
+	}
+	PrintSortedGraph();
+}
+
+void GraphMST::AddEdge(int from, int to, int weight) {
+	AdjMatrix[from][to] = weight;
+}
+
+int main() {
+	int V, s, E;
+	cin >> V >> E >> s;
+	GraphMST g6(++V);
+	for (int i = 0; i < E; i++) {
+		int u, v, w;
+		cin >> u >> v >> w;
+		g6.AddEdge(u, v, w);
+	}
+	g6.PrimMST(s);
+}
