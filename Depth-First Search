@@ -1,6 +1,6 @@
 #include <iostream>
 using namespace std;
-#define graph_size 20
+#define graph_size 21
 int G[graph_size][graph_size];
 int i;//初始頂點
 int N;//頂點數
