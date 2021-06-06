@@ -1,0 +1,54 @@
+#include <iostream>
+using namespace std;
+#define graph_size 20
+int G[graph_size][graph_size];
+int i;//初始頂點
+int N;//頂點數
+int E;//邊數
+bool Visited[graph_size];//是否拜訪過;
+void NewVisited() { //初始化拜訪變數
+	for (int i = 0; i < graph_size; i++)
+		Visited[i] = false;
+}
+void CreateGraph() {//鄰接矩陣
+	NewVisited();
+	cin >> N >> E >> i;
+	int v1, v2;//兩個點
+
+	for (int j = 1; j <= N; j++) //初始化
+		for (int k = 1; k <= N; k++)
+			G[j][k] = 0;
+
+	for (int j = 0; j < E; j++) {
+		cin >> v1 >> v2;
+		G[v1][v2] = G[v2][v1] = 1;
+	}
+}
+void PrintGraph() {
+	for (int j = 1; j <= N; j++) {
+		for (int k = 1; k <= N; k++) {
+			cout << G[j][k] << " ";
+		}
+		cout << endl;
+	}
+}
+void BFS(int i) {
+	int Queue[100];
+	int first = -1, last = -1;
+	Queue[++last] = i;
+	Visited[i] = true;
+	while (first < last) {
+		int F = Queue[++first];
+		cout << F << " ";
+		for (int j = 0; j <= N; j++) {
+			if (G[F][j] && !Visited[j]) {
+				Queue[++last] = j;
+				Visited[j] = true;
+			}
+		}
+	}
+}
+int main(int argc, char *argv[]) {
+	CreateGraph();
+	BFS(i);
+}
