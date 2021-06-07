@@ -13,25 +13,25 @@ struct Edge {
 class GraphMST {
 private:
 	int V; //頂點
-	std::vector<std::vector<int>> Graph;
+	vector<vector<int>> Graph;
 public:
 	GraphMST() :V(0) {};
 	GraphMST(int n) :V(n) {
 		Graph.resize(V);
-		for (int i = 0; i < V; i++) 
+		for (int i = 0; i < V; i++)
 			Graph[i].resize(V);
 	}
 
 	void AddEdge(int from, int to, int weight);
 	void KruskalMST();
-	void GetSortedEdge(std::vector<struct Edge> &vec);
+	void GetSortedEdge(vector<struct Edge> &vec);
 	friend int FindSetCollapsing(int *subset, int i);
 	friend void UnionSet(int *subset, int u, int v);
 };
 
-int FindSetCollapsing(int *subset, int i) {      
+int FindSetCollapsing(int *subset, int i) {
 
-	int root;  
+	int root;
 	for (root = i; subset[root] >= 0; root = subset[root]);
 
 	while (i != root) {
@@ -51,7 +51,7 @@ void UnionSet(int *subset, int u, int v) {
 		subset[uroot] += subset[vroot];
 		subset[vroot] = uroot;
 	}
-	else {    
+	else {
 		subset[vroot] += subset[uroot];
 		subset[uroot] = vroot;
 	}
@@ -59,7 +59,7 @@ void UnionSet(int *subset, int u, int v) {
 bool WeightComp(struct Edge e1, struct Edge e2) { //sort裡面設定sort條件
 	return (e1.weight < e2.weight);
 }
-void GraphMST::GetSortedEdge(std::vector<struct Edge> &edgearray) {
+void GraphMST::GetSortedEdge(vector<struct Edge> &edgearray) {
 
 	for (int i = 0; i < V - 1; i++) {
 		for (int j = i + 1; j < V; j++) {
@@ -80,8 +80,8 @@ void GraphMST::KruskalMST() {
 		subset[i] = -1;
 	}
 
-	std::vector<struct Edge> increaseWeight;
-	GetSortedEdge(increaseWeight);              
+	vector<struct Edge> increaseWeight;
+	GetSortedEdge(increaseWeight);
 
 	for (int i = 0; i < increaseWeight.size(); i++) {
 		if (FindSetCollapsing(subset, increaseWeight[i].from) != FindSetCollapsing(subset, increaseWeight[i].to)) {
