@@ -115,7 +115,7 @@ void Graph::printSCCs(){
 				visitedCCS[j] = true;
 			}
 		}
-		if (true) {
+		if (touch) {
 			cout << endl;
 		}
 	}
