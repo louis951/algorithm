@@ -14,7 +14,7 @@ class Graph
 {
 	int V;    // No. of vertices
 	list<int> *adj;    // An array of adjacency lists
-
+	vector<vector<int>> GraphCSS;
 	// Fills Stack with vertices (in increasing order of finishing
 	// times). The top element of stack has the maximum finishing 
 	// time
@@ -53,8 +53,8 @@ void Graph::DFSUtil(int v, bool visited[], vector<int>&CCS)
 {
 	// Mark the current node as visited and print it
 	visited[v] = true;
-	CCS.push_back(v);
-
+	//CCS.push_back(v);
+	cout << v << " ";
 	// Recur for all the vertices adjacent to this vertex
 	list<int>::iterator i;
 	for (i = adj[v].begin(); i != adj[v].end(); ++i)
@@ -102,12 +102,17 @@ void Graph::fillOrder(int v, bool visited[], stack<int> &Stack)
 void Graph::printSCCs()
 {
 	stack<int> Stack;
-
+	int *predecessor = new int[V];
 	// Mark all the vertices as not visited (For first DFS)
 	bool *visited = new bool[V];
-	for (int i = 1; i < V; i++)
+	bool *visitedCSS = new bool[V];
+	for (int i = 0; i < V; i++) {
 		visited[i] = false;
+		predecessor[i] = -1;
+		visitedCSS[i] = false;
+	}
 	visited[0] = true;
+	visitedCSS[0] = true;
 	// Fill vertices in stack according to their finishing times
 	for (int i = 0; i < V; i++)
 		if (visited[i] == false)
@@ -117,25 +122,38 @@ void Graph::printSCCs()
 	Graph gr = getTranspose();
 
 	// Mark all the vertices as not visited (For second DFS)
-	for (int i = 0; i < V; i++)
+	for (int i = 1; i < V; i++) {
 		visited[i] = false;
-	// Now process all vertices in order defined by Stack
-	while (Stack.empty() == false)
-	{
-		// Pop a vertex from stack
-		int v = Stack.top();
-		Stack.pop();
-		vector<int> CCS;
-		// Print Strongly connected component of the popped vertex
-		if (visited[v] == false)
+		// Now process all vertices in order defined by Stack
+		while (Stack.empty() == false)
 		{
-			gr.DFSUtil(v, visited, CCS);
+			// Pop a vertex from stack
+			int v = Stack.top();
+			Stack.pop();
+			vector<int> CCS;
+			// Print Strongly connected component of the popped vertex
+			if (visited[v] == false)
+			{
+				gr.DFSUtil(v, visited, CCS);
+			}
+			//insertion_sort(CCS);
+			//CCS.push_back(0);
+			for (int i = 0, j = 1; i < CCS.size(); i++, j++) {
+				//predecessor[CCS[i]] = CCS[j];
+				//cout << CCS[i] << " " << CCS[j];
+				cout << CCS[i] << " ";
+			}
+			cout << endl;
 		}
-		insertion_sort(CCS);
-		for (int i = 0; i < CCS.size(); i++)
-			cout << CCS[i] << " ";
-		cout << endl;
-		CCS.clear();
+		/*for (int i = 1; i < V ; i++) {
+			if (visitedCSS[i] == false) {
+				for (int j = i ; predecessor[j] != 0; j = predecessor[j]) {
+					cout << j << " ";
+					visitedCSS[j] = true;
+				}
+				cout << endl;
+			}
+		}*/
 	}
 }
 
