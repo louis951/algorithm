@@ -1,31 +1,24 @@
 #include <iostream>
 #include <list>
-#include<vector>
 #include <stack>
 using namespace std;
-
-struct Edge {
-	int from, to;
-	Edge() {};
-	Edge(int u, int v) :from(u), to(v) {};
-};
 
 class Graph
 {
 	int V;    // No. of vertices
 	list<int> *adj;    // An array of adjacency lists
-	vector<vector<int>> GraphCSS;
+
 	// Fills Stack with vertices (in increasing order of finishing
 	// times). The top element of stack has the maximum finishing 
 	// time
 	void fillOrder(int v, bool visited[], stack<int> &Stack);
 
 	// A recursive function to print DFS starting from v
-	void DFSUtil(int v, bool visited[], vector<int>&);
+	void DFSUtil(int v, bool visited[]);
 public:
 	Graph(int V);
 	void addEdge(int v, int w);
-	void insertion_sort(vector<int>&);
+
 	// The main function that finds and prints strongly connected
 	// components
 	void printSCCs();
@@ -34,32 +27,24 @@ public:
 	Graph getTranspose();
 };
 
-Graph::Graph(int V) :V(V) {
+Graph::Graph(int V)
+{
+	this->V = V;
 	adj = new list<int>[V];
 }
 
-void Graph::insertion_sort(vector<int>& A) {
-	for (int i = 1; i < A.size(); i++) {
-		int buffer = A[i];
-		int j;
-		for (j = i - 1; j >= 0 && A[j] > buffer; j--)
-			A[j + 1] = A[j];
-		A[j + 1] = buffer;
-	}
-}
-
 // A recursive function to print DFS starting from v
-void Graph::DFSUtil(int v, bool visited[], vector<int>&CCS)
+void Graph::DFSUtil(int v, bool visited[])
 {
 	// Mark the current node as visited and print it
 	visited[v] = true;
-	//CCS.push_back(v);
 	cout << v << " ";
+
 	// Recur for all the vertices adjacent to this vertex
 	list<int>::iterator i;
 	for (i = adj[v].begin(); i != adj[v].end(); ++i)
 		if (!visited[*i])
-			DFSUtil(*i, visited, CCS);
+			DFSUtil(*i, visited);
 }
 
 Graph Graph::getTranspose()
@@ -102,17 +87,12 @@ void Graph::fillOrder(int v, bool visited[], stack<int> &Stack)
 void Graph::printSCCs()
 {
 	stack<int> Stack;
-	int *predecessor = new int[V];
+
 	// Mark all the vertices as not visited (For first DFS)
 	bool *visited = new bool[V];
-	bool *visitedCSS = new bool[V];
-	for (int i = 0; i < V; i++) {
+	for (int i = 0; i < V; i++)
 		visited[i] = false;
-		predecessor[i] = -1;
-		visitedCSS[i] = false;
-	}
-	visited[0] = true;
-	visitedCSS[0] = true;
+
 	// Fill vertices in stack according to their finishing times
 	for (int i = 0; i < V; i++)
 		if (visited[i] == false)
@@ -122,48 +102,30 @@ void Graph::printSCCs()
 	Graph gr = getTranspose();
 
 	// Mark all the vertices as not visited (For second DFS)
-	for (int i = 1; i < V; i++) {
+	for (int i = 0; i < V; i++)
 		visited[i] = false;
-		// Now process all vertices in order defined by Stack
-		while (Stack.empty() == false)
+
+	// Now process all vertices in order defined by Stack
+	while (Stack.empty() == false)
+	{
+		// Pop a vertex from stack
+		int v = Stack.top();
+		Stack.pop();
+
+		// Print Strongly connected component of the popped vertex
+		if (visited[v] == false)
 		{
-			// Pop a vertex from stack
-			int v = Stack.top();
-			Stack.pop();
-			vector<int> CCS;
-			// Print Strongly connected component of the popped vertex
-			if (visited[v] == false)
-			{
-				gr.DFSUtil(v, visited, CCS);
-			}
-			//insertion_sort(CCS);
-			//CCS.push_back(0);
-			for (int i = 0, j = 1; i < CCS.size(); i++, j++) {
-				//predecessor[CCS[i]] = CCS[j];
-				//cout << CCS[i] << " " << CCS[j];
-				cout << CCS[i] << " ";
-			}
+			gr.DFSUtil(v, visited);
 			cout << endl;
 		}
-		/*for (int i = 1; i < V ; i++) {
-			if (visitedCSS[i] == false) {
-				for (int j = i ; predecessor[j] != 0; j = predecessor[j]) {
-					cout << j << " ";
-					visitedCSS[j] = true;
-				}
-				cout << endl;
-			}
-		}*/
 	}
 }
-
-// Driver program to test above functions
 int main()
 {
 	// Create a graph given in the above diagram
 	int V, E, s;
 	cin >> V >> E >> s;
-	Graph g(++V);
+	Graph g(V);
 	for (int i = 0; i < E; i++) {
 		int u, v;
 		cin >> u >> v;
