@@ -4,56 +4,37 @@
 #include <vector>
 using namespace std;
 
-class Graph
-{
-	int V;    // No. of vertices
-	list<int> *adj;    // An array of adjacency lists
-
-	// Fills Stack with vertices (in increasing order of finishing
-	// times). The top element of stack has the maximum finishing 
-	// time
+class Graph{
+	int V; 
+	list<int> *adj;   
 	void fillOrder(int v, bool visited[], stack<int> &Stack);
-
-	// A recursive function to print DFS starting from v
 	void DFSUtil(int v, bool visited[], vector<int>&);
 public:
 	Graph(int V);
 	void addEdge(int v, int w);
 	void insertion_sort(vector<int>&);
-	// The main function that finds and prints strongly connected
-	// components
 	void printSCCs();
-
-	// Function that returns reverse (or transpose) of this graph
 	Graph getTranspose();
 };
 
-Graph::Graph(int V)
-{
+Graph::Graph(int V){
 	this->V = V;
 	adj = new list<int>[V];
 }
 
-// A recursive function to print DFS starting from v
-void Graph::DFSUtil(int v, bool visited[],vector<int>&CCS)
-{
-	// Mark the current node as visited and print it
+void Graph::DFSUtil(int v, bool visited[],vector<int>&CCS){
 	visited[v] = true;
 	CCS.push_back(v);
 
-	// Recur for all the vertices adjacent to this vertex
 	list<int>::iterator i;
 	for (i = adj[v].begin(); i != adj[v].end(); ++i)
 		if (!visited[*i])
 			DFSUtil(*i, visited,CCS);
 }
 
-Graph Graph::getTranspose()
-{
+Graph Graph::getTranspose(){
 	Graph g(V);
-	for (int v = 0; v < V; v++)
-	{
-		// Recur for all the vertices adjacent to this vertex
+	for (int v = 0; v < V; v++){
 		list<int>::iterator i;
 		for (i = adj[v].begin(); i != adj[v].end(); ++i)
 		{
@@ -63,23 +44,18 @@ Graph Graph::getTranspose()
 	return g;
 }
 
-void Graph::addEdge(int v, int w)
-{
-	adj[v].push_back(w); // Add w to v’s list.
+void Graph::addEdge(int v, int w){
+	adj[v].push_back(w); 
 }
 
-void Graph::fillOrder(int v, bool visited[], stack<int> &Stack)
-{
-	// Mark the current node as visited and print it
+void Graph::fillOrder(int v, bool visited[], stack<int> &Stack){
 	visited[v] = true;
 
-	// Recur for all the vertices adjacent to this vertex
 	list<int>::iterator i;
 	for (i = adj[v].begin(); i != adj[v].end(); ++i)
 		if (!visited[*i])
 			fillOrder(*i, visited, Stack);
 
-	// All vertices reachable from v are processed by now, push v 
 	Stack.push(v);
 }
 
@@ -92,15 +68,12 @@ void Graph::insertion_sort(vector<int>& A) {
 		A[j + 1] = buffer;
 	}
 }
-// The main function that finds and prints all strongly connected 
-// components
-void Graph::printSCCs()
-{
+
+void Graph::printSCCs(){
 	stack<int> Stack;
 
 	int *predecessor = new int[V];
 
-	// Mark all the vertices as not visited (For first DFS)
 	bool *visited = new bool[V];
 	bool *visitedCCS = new bool[V];
 	for (int i = 0; i < V; i++) {
@@ -110,54 +83,45 @@ void Graph::printSCCs()
 	}
 	visited[0] = true;
 	visitedCCS[0] = true;
-	// Fill vertices in stack according to their finishing times
+
 	for (int i = 0; i < V; i++)
 		if (visited[i] == false)
 			fillOrder(i, visited, Stack);
 
-	// Create a reversed graph
 	Graph gr = getTranspose();
 
-	// Mark all the vertices as not visited (For second DFS)
 	for (int i = 0; i < V; i++)
 		visited[i] = false;
 
-	// Now process all vertices in order defined by Stack
-	while (Stack.empty() == false)
-	{
-		// Pop a vertex from stack
+	while (Stack.empty() == false){
 		int v = Stack.top();
 		Stack.pop();
 		vector<int> CCS;
-		// Print Strongly connected component of the popped vertex
 		if (visited[v] == false)
-		{
 			gr.DFSUtil(v, visited, CCS);
-			
-		}
 		insertion_sort(CCS);
 		CCS.push_back(0);
-		for (int i = 0, j = 1; i < CCS.size() - 1; i++, j++) {
+		for (int i = 0, j = 1; i < CCS.size() - 1; i++, j++) 
 			predecessor[CCS[i]] = CCS[j];
-			//cout << CCS[i] << " " << CCS[j] << " ";
-		}
+		
 	}
 	for (int i = 0; i < V; i++) {
 		int j;
+		bool touch = false;
 		for (j = i; j != 0; j = predecessor[j]) {
 			if (visitedCCS[j] == false) {
+				touch = true;
 				cout << j << " ";
 				visitedCCS[j] = true;
 			}
 		}
-		cout << endl;
+		if (true) {
+			cout << endl;
+		}
 	}
 }
 
-// Driver program to test above functions
-int main()
-{
-	// Create a graph given in the above diagram
+int main(){
 	int V, E, s;
 	cin >> V >> E >> s;
 	Graph g(++V);
@@ -167,6 +131,4 @@ int main()
 		g.addEdge(u, v);
 	}
 	g.printSCCs();
-
-	return 0;
 }
