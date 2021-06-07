@@ -1,6 +1,7 @@
 #include <iostream>
 #include <list>
 #include <stack>
+#include <vector>
 using namespace std;
 
 class Graph
@@ -14,11 +15,11 @@ class Graph
 	void fillOrder(int v, bool visited[], stack<int> &Stack);
 
 	// A recursive function to print DFS starting from v
-	void DFSUtil(int v, bool visited[]);
+	void DFSUtil(int v, bool visited[], vector<int>&);
 public:
 	Graph(int V);
 	void addEdge(int v, int w);
-
+	void insertion_sort(vector<int>&);
 	// The main function that finds and prints strongly connected
 	// components
 	void printSCCs();
@@ -34,17 +35,17 @@ Graph::Graph(int V)
 }
 
 // A recursive function to print DFS starting from v
-void Graph::DFSUtil(int v, bool visited[])
+void Graph::DFSUtil(int v, bool visited[],vector<int>&CCS)
 {
 	// Mark the current node as visited and print it
 	visited[v] = true;
-	cout << v << " ";
+	CCS.push_back(v);
 
 	// Recur for all the vertices adjacent to this vertex
 	list<int>::iterator i;
 	for (i = adj[v].begin(); i != adj[v].end(); ++i)
 		if (!visited[*i])
-			DFSUtil(*i, visited);
+			DFSUtil(*i, visited,CCS);
 }
 
 Graph Graph::getTranspose()
@@ -82,17 +83,33 @@ void Graph::fillOrder(int v, bool visited[], stack<int> &Stack)
 	Stack.push(v);
 }
 
+void Graph::insertion_sort(vector<int>& A) {
+	for (int i = 1; i < A.size(); i++) {
+		int buffer = A[i];
+		int j;
+		for (j = i - 1; j >= 0 && A[j] > buffer; j--)
+			A[j + 1] = A[j];
+		A[j + 1] = buffer;
+	}
+}
 // The main function that finds and prints all strongly connected 
 // components
 void Graph::printSCCs()
 {
 	stack<int> Stack;
 
+	int *predecessor = new int[V];
+
 	// Mark all the vertices as not visited (For first DFS)
 	bool *visited = new bool[V];
-	for (int i = 0; i < V; i++)
+	bool *visitedCCS = new bool[V];
+	for (int i = 0; i < V; i++) {
+		predecessor[i] = i;
 		visited[i] = false;
-
+		visitedCCS[i] = false;
+	}
+	visited[0] = true;
+	visitedCCS[0] = true;
 	// Fill vertices in stack according to their finishing times
 	for (int i = 0; i < V; i++)
 		if (visited[i] == false)
@@ -111,21 +128,39 @@ void Graph::printSCCs()
 		// Pop a vertex from stack
 		int v = Stack.top();
 		Stack.pop();
-
+		vector<int> CCS;
 		// Print Strongly connected component of the popped vertex
 		if (visited[v] == false)
 		{
-			gr.DFSUtil(v, visited);
-			cout << endl;
+			gr.DFSUtil(v, visited, CCS);
+			
+		}
+		insertion_sort(CCS);
+		CCS.push_back(0);
+		for (int i = 0, j = 1; i < CCS.size() - 1; i++, j++) {
+			predecessor[CCS[i]] = CCS[j];
+			//cout << CCS[i] << " " << CCS[j] << " ";
 		}
 	}
+	for (int i = 0; i < V; i++) {
+		int j;
+		for (j = i; j != 0; j = predecessor[j]) {
+			if (visitedCCS[j] == false) {
+				cout << j << " ";
+				visitedCCS[j] = true;
+			}
+		}
+		cout << endl;
+	}
 }
+
+// Driver program to test above functions
 int main()
 {
 	// Create a graph given in the above diagram
 	int V, E, s;
 	cin >> V >> E >> s;
-	Graph g(V);
+	Graph g(++V);
 	for (int i = 0; i < E; i++) {
 		int u, v;
 		cin >> u >> v;
